@@ -51,14 +51,24 @@ int rangeRandomAlg2 (int min, int max){
     }while (x >= RAND_MAX - remainder);
     return min + x % n;
 }
+
+void print_route(pair<int,vector<int>> route){
+   cout << "Costo ruta:" << route.first <<"\n";
+   for (auto it = route.second.begin(); it!=route.second.end(); it++)
+   {
+      printf("%d ",*it);
+   }
+   cout << "\n";
+}
+
 //recorre el grafo de manera aleatoria
 //pair<int,vector<int>> 
-void *traverse_graph(vector<pair<int,int> > adj[]){
+void *traverse_graph( void * adj){
 
    int cost = 0;
    int node = 0;
    int end_node = 10;
-
+   vector<pair<int,int> >* graph = (vector<pair<int,int> > *)adj;
    vector<pair<int,int> > neighbors; // vecinos
    pair<int,vector<int>> route; // costo, lista nodos ruta
    route.second.push_back(node); //nodo inicial 0
@@ -66,12 +76,12 @@ void *traverse_graph(vector<pair<int,int> > adj[]){
 
    while (node != 10){
 
-      neighbors = get_neighbors(adj,node);
+      neighbors = graph[node];//get_neighbors(*graph,node);
 
       randNum = rangeRandomAlg2(0,neighbors.size()-1);//elige vecino aleatorio
       
       node = neighbors[randNum].first; //se mueve al nuevo nodo
- 
+
       route.second.push_back(node);//agrega el nuevo nodo a la ruta
 
       cost += neighbors[randNum].second; //suma el costo al total
@@ -84,15 +94,7 @@ void *traverse_graph(vector<pair<int,int> > adj[]){
    //return route;
 }
 
-void print_route(pair<int,vector<int>> route){
-   cout << "Costo ruta:" << route.first <<"\n";
-   for (auto it = route.second.begin(); it!=route.second.end(); it++)
-   {
-      printf("%s ",it);
-      //cout << " " << it << " ";
-   }
-   cout << "\n";
-}
+
 
 void print_neighbors(vector<pair<int,int> > adj[], int V, int node){
    int v, w;
@@ -149,11 +151,18 @@ int main()
     addEdge(adj, 8, 10, 10);
 
     addEdge(adj, 9, 10, 1);
-    pthread_t thread;
+    pthread_t thread1,thread2,thread3,thread4,thread5;
 
-    pthread_create(&thread, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread1, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread2, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread3, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread4, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread5, NULL, traverse_graph, (void *)adj);
 
-
-    pthread_join(thread, NULL);
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+    pthread_join(thread4, NULL);
+    pthread_join(thread5, NULL);
     return 0;
 }
