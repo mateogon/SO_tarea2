@@ -12,10 +12,12 @@
 #include <pthread.h> 
 #include <bits/stdc++.h>
 #include <mutex>
+#include <semaphore>
 using namespace std;
 
 mutex m;
 multimap<int, vector<int>> rutas;
+//counting_semaphore<3> semaforo;
 
 // To add an edge
 void addEdge(vector <pair<int, int> > adj[], int u, int v, int wt)
@@ -118,6 +120,7 @@ int main()
 {
     srand(time(NULL)); //seed time
     int V = 11;
+    int thread_amount = 10;
     vector<pair<int, int> > adj[V];
     addEdge(adj, 0, 1, 10);
     addEdge(adj, 0, 2, 15);
@@ -157,30 +160,18 @@ int main()
     addEdge(adj, 8, 10, 10);
 
     addEdge(adj, 9, 10, 1);
-    pthread_t thread1,thread2,thread3,thread4,thread5,thread6,thread7,thread8,thread9,thread10;
 
-    pthread_create(&thread1, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread2, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread3, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread4, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread5, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread6, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread7, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread8, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread9, NULL, traverse_graph, (void *)adj);
-    pthread_create(&thread10, NULL, traverse_graph, (void *)adj);
+    vector<pthread_t> threads(thread_amount);
 
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-    pthread_join(thread3, NULL);
-    pthread_join(thread4, NULL);
-    pthread_join(thread5, NULL);
-    pthread_join(thread6, NULL);
-    pthread_join(thread7, NULL);
-    pthread_join(thread8, NULL);
-    pthread_join(thread9, NULL);
-    pthread_join(thread10, NULL);
-
+   for(int i = 0; i<thread_amount; i++) { //crear threads
+    pthread_t new_thread;
+    pthread_create(&new_thread, NULL, traverse_graph, (void *)adj);
+    threads.push_back(new_thread);
+   }
+    for(auto t : threads) {
+      pthread_join((pthread_t)t, NULL);
+    }
+   
     
    for (auto it = rutas.begin(); it!=rutas.end(); it++)
    {
