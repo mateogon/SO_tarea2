@@ -11,11 +11,14 @@
 #include <memory.h>
 #include <pthread.h> 
 #include <bits/stdc++.h>
+#include <mutex>
 using namespace std;
- 
+
+mutex m;
+multimap<int, vector<int>> rutas;
+
 // To add an edge
-void addEdge(vector <pair<int, int> > adj[], int u,
-                                     int v, int wt)
+void addEdge(vector <pair<int, int> > adj[], int u, int v, int wt)
 {
     adj[u].push_back(make_pair(v, wt));
 }
@@ -52,9 +55,9 @@ int rangeRandomAlg2 (int min, int max){
     return min + x % n;
 }
 
-void print_route(pair<int,vector<int>> route){
-   cout << "Costo ruta:" << route.first <<"\n";
-   for (auto it = route.second.begin(); it!=route.second.end(); it++)
+void print_route(int cost, vector<int> route){
+   cout << "Costo ruta:" << cost <<"\n";
+   for (auto it = route.begin(); it!=route.end(); it++)
    {
       printf("%d ",*it);
    }
@@ -88,12 +91,14 @@ void *traverse_graph( void * adj){
    }
 
    route.first = cost;
-   print_route(route);
+   //print_route(route);
+   m.lock();
+   rutas.insert({route.first,route.second});
+   m.unlock();
    pthread_exit(NULL);
    return NULL;
    //return route;
 }
-
 
 
 void print_neighbors(vector<pair<int,int> > adj[], int V, int node){
@@ -107,7 +112,8 @@ void print_neighbors(vector<pair<int,int> > adj[], int V, int node){
    }
    cout << "\n";
 }
-// Driver code
+
+
 int main()
 {
     srand(time(NULL)); //seed time
@@ -151,18 +157,34 @@ int main()
     addEdge(adj, 8, 10, 10);
 
     addEdge(adj, 9, 10, 1);
-    pthread_t thread1,thread2,thread3,thread4,thread5;
+    pthread_t thread1,thread2,thread3,thread4,thread5,thread6,thread7,thread8,thread9,thread10;
 
     pthread_create(&thread1, NULL, traverse_graph, (void *)adj);
     pthread_create(&thread2, NULL, traverse_graph, (void *)adj);
     pthread_create(&thread3, NULL, traverse_graph, (void *)adj);
     pthread_create(&thread4, NULL, traverse_graph, (void *)adj);
     pthread_create(&thread5, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread6, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread7, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread8, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread9, NULL, traverse_graph, (void *)adj);
+    pthread_create(&thread10, NULL, traverse_graph, (void *)adj);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
     pthread_join(thread3, NULL);
     pthread_join(thread4, NULL);
     pthread_join(thread5, NULL);
+    pthread_join(thread6, NULL);
+    pthread_join(thread7, NULL);
+    pthread_join(thread8, NULL);
+    pthread_join(thread9, NULL);
+    pthread_join(thread10, NULL);
+
+    
+   for (auto it = rutas.begin(); it!=rutas.end(); it++)
+   {
+      print_route(it->first,it->second);
+   }
     return 0;
 }
