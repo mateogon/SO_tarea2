@@ -19,13 +19,13 @@ const int M = 2; //max threads concurrentes en arista a-b
 constexpr ptrdiff_t    max_sema_threads{M}; // semaforo maximo M threads a la vez
 counting_semaphore     semaphore{max_sema_threads};
 
-// To add an edge
+// Agrega una arista al grafo
 void addEdge(vector <pair<int, int> > adj[], int u, int v, int wt)
 {
     adj[u].push_back(make_pair(v, wt));
 }
- 
-// Print adjacency list representation of graph
+
+// Imprime el grafo como lista de adyacencia
 void printGraph(vector<pair<int,int> > adj[], int V)
 {
     int v, w;
@@ -42,10 +42,7 @@ void printGraph(vector<pair<int,int> > adj[], int V)
         cout << "\n";
     }
 }
-//retorna vecinos de un nodo
-vector<pair<int,int> > get_neighbors(vector<pair<int,int> > adj[], int node){
-   return adj[node];
-}
+
 //retorna int random entre min y max
 int rangeRandomAlg2 (int min, int max){
     int n = max - min + 1;
@@ -74,7 +71,9 @@ void *traverse_graph( void * adj){
    int node = 0;
    int end_node = 10;
    bool semaphore_edge = false;
+
    vector<pair<int,int> >* graph = (vector<pair<int,int> > *)adj;
+
    vector<pair<int,int> > neighbors; // vecinos
    pair<int,vector<int>> route; // costo, lista nodos ruta
    route.second.push_back(node); //nodo inicial 0
@@ -82,7 +81,7 @@ void *traverse_graph( void * adj){
 
    while (node != 10){
 
-      neighbors = graph[node];//get_neighbors(*graph,node);
+      neighbors = graph[node];
 
       randNum = rangeRandomAlg2(0,neighbors.size()-1);//elige vecino aleatorio
       //semaphore
@@ -140,6 +139,7 @@ int main()
     int V = 11;
     int thread_amount = 10;
     vector<pair<int, int> > adj[V];
+    /*grafo simple
     addEdge(adj, 0, 1, 10);
     addEdge(adj, 1, 2, 30);
     addEdge(adj, 2, 3, 37);
@@ -151,13 +151,56 @@ int main()
     addEdge(adj, 8, 9, 10);
 
     addEdge(adj, 9, 10, 1);
+   */
+    addEdge(adj, 0, 1, 10);
+    addEdge(adj, 0, 2, 15);
+    addEdge(adj, 0, 3, 20);
+
+    addEdge(adj, 1, 4, 30);
+    addEdge(adj, 1, 5, 40);
+
+    addEdge(adj, 2, 4, 37);
+    addEdge(adj, 2, 5, 25);
+    addEdge(adj, 2, 6, 30);
+    addEdge(adj, 2, 3, 7);
+
+    addEdge(adj, 3, 2, 7);
+    addEdge(adj, 3, 4, 20);
+    addEdge(adj, 3, 5, 30);
+
+    addEdge(adj, 4, 5, 9);
+    addEdge(adj, 4, 8, 30);
+    addEdge(adj, 4, 9, 22);
+
+    addEdge(adj, 5, 4, 9);
+    addEdge(adj, 5, 6, 11);
+    addEdge(adj, 5, 7, 25);
+    addEdge(adj, 5, 8, 38);
+    addEdge(adj, 5, 9, 29);
+
+    addEdge(adj, 6, 5, 11);
+    addEdge(adj, 6, 7, 29);
+    addEdge(adj, 6, 8, 25);
+    addEdge(adj, 6, 9, 38);
+
+    addEdge(adj, 7, 8, 6);
+    addEdge(adj, 7, 10, 7);
+
+    addEdge(adj, 8, 7, 6);
+    addEdge(adj, 8, 10, 10);
+
+    addEdge(adj, 9, 10, 1);
 
     vector<pthread_t> threads(thread_amount);
 
    for(int i = 0; i<thread_amount; i++) { //crear threads
+
     pthread_t new_thread;
+
     pthread_create(&new_thread, NULL, traverse_graph, (void *)adj);
+
     threads.push_back(new_thread);
+
    }
     for(auto t : threads) {
       pthread_join((pthread_t)t, NULL);
