@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS  = -pthread
+CFLAGS  = -pthread -std=c++20
 
 SERVER = main
 
